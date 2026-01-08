@@ -10,12 +10,12 @@ issueTrackerURL="https://discord.gg/WsuFsGSegD" #optional
 modId="starchaeology"
 version="${mod_version}"
 displayName="${mod_name}"
-displayURL="http://curseforge.com/minecraft/mc-mods/scrying"
+displayURL="http://curseforge.com/minecraft/mc-mods/starchaeology"
 mod_authors="${mod_authors}" #optional
 description='''A space themed Archaeology mod'''
 
 [[mixins]]
-config="starchaelogy.mixins.json"
+config="starchaeology.mixins.json"
 
 [[accessTransformers]]
 file="META-INF/accesstransformer.cfg"
