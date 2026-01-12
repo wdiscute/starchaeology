@@ -10,8 +10,11 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.Item;
 import net.neoforged.neoforge.registries.DeferredItem;
 
+import java.util.Random;
+
 public class U
 {
+    public static final Random r = new Random();
     public static ResourceLocation rl(String ns, String path)
     {
         return ResourceLocation.fromNamespaceAndPath(ns, path);

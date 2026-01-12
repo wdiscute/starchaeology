@@ -1,0 +1,8 @@
+{
+  "gui.stararchaelogy.excavation.tool" : "Tool: ",
+  "gui.stararchaelogy.excavation.tool.brush" : "Brush",
+  "gui.stararchaelogy.excavation.tool.shovel" : "Shovel",
+  "gui.stararchaelogy.excavation.tool.pickaxe" : "Pickaxe",
+
+  "gui.stararchaelogy.excavation.moves" : "Moves Remaining: "
+}

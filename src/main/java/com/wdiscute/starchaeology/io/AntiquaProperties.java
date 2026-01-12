@@ -2,6 +2,7 @@ package com.wdiscute.starchaeology.io;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import com.wdiscute.starchaeology.Starchaeology;
 import com.wdiscute.starchaeology.registry.item.ModItems;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.Holder;
@@ -73,19 +74,30 @@ public record AntiquaProperties
 
 
     public record Difficulty(
-            int width,
-            int height,
-            int layers
+            int itemWidth,
+            int itemHeight,
+            int rows,
+            int columns,
+            int moves,
+            List<ResourceLocation> layers
     )
     {
 
-        public static final Difficulty DEFAULT = new Difficulty(1, 1, 5);
+        public static final Difficulty DEFAULT = new Difficulty(1, 1, 10, 10, 20,
+                List.of(Starchaeology.rl("textures/gui/excavation/tiles/dirt.png"),
+                        Starchaeology.rl("textures/gui/excavation/tiles/coarse_dirt.png"),
+                        Starchaeology.rl("textures/gui/excavation/tiles/gravel.png"),
+                        Starchaeology.rl("textures/gui/excavation/tiles/stone.png"),
+                        Starchaeology.rl("textures/gui/excavation/tiles/deepslate.png")));
 
         public static final Codec<Difficulty> CODEC = RecordCodecBuilder.create(instance ->
                 instance.group(
-                        Codec.INT.fieldOf("width").forGetter(Difficulty::width),
-                        Codec.INT.fieldOf("height").forGetter(Difficulty::height),
-                        Codec.INT.fieldOf("layers").forGetter(Difficulty::layers)
+                        Codec.INT.fieldOf("item_width").forGetter(Difficulty::itemWidth),
+                        Codec.INT.fieldOf("item_height").forGetter(Difficulty::itemHeight),
+                        Codec.INT.optionalFieldOf("rows", 10).forGetter(Difficulty::rows),
+                        Codec.INT.optionalFieldOf("columns", 10).forGetter(Difficulty::columns),
+                        Codec.INT.fieldOf("base_moves").forGetter(Difficulty::columns),
+                        ResourceLocation.CODEC.listOf().fieldOf("layers").forGetter(Difficulty::layers)
                 ).apply(instance, Difficulty::new)
         );
 
