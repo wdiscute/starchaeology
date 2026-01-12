@@ -20,7 +20,7 @@ public class Starchaeology
     public static final Logger LOGGER = LogUtils.getLogger();
 
     public static final ResourceKey<Registry<AntiquaProperties>> ANTIQUA_REGISTRY =
-            ResourceKey.createRegistryKey(Starchaeology.rl("fish"));
+            ResourceKey.createRegistryKey(Starchaeology.rl("antiqua"));
 
     public static ResourceLocation rl(String s)
     {

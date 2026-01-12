@@ -2,6 +2,7 @@ package com.wdiscute.starchaeology.io;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import com.wdiscute.starchaeology.registry.item.ModItems;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -13,19 +14,52 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.network.codec.NeoForgeStreamCodecs;
 
 import java.util.List;
 
 public record AntiquaProperties
-                (
+        (
                 Holder<Item> antiqua,
                 int baseChance,
                 Rarity rarity,
                 WorldRestrictions wr,
                 Difficulty dif
-                )
+        )
 {
+
+    public static final AntiquaProperties DEFAULT = new AntiquaProperties(
+            ModItems.MISSINGNO,
+            10,
+            Rarity.COMMON,
+            WorldRestrictions.DEFAULT,
+            Difficulty.DEFAULT);
+
+    public AntiquaProperties withAntiqua(Holder<Item> antiqua)
+    {
+        return new AntiquaProperties(antiqua, this.baseChance, this.rarity, this.wr, this.dif);
+    }
+
+    public AntiquaProperties withBaseChance(int baseChance)
+    {
+        return new AntiquaProperties(this.antiqua, baseChance, this.rarity, this.wr, this.dif);
+    }
+
+    public AntiquaProperties withRarity(Rarity rarity)
+    {
+        return new AntiquaProperties(this.antiqua, this.baseChance, rarity, this.wr, this.dif);
+    }
+
+    public AntiquaProperties withWorldRestrictions(WorldRestrictions wr)
+    {
+        return new AntiquaProperties(this.antiqua, this.baseChance, this.rarity, wr, this.dif);
+    }
+
+    public AntiquaProperties withDifficulty(Difficulty dif)
+    {
+        return new AntiquaProperties(this.antiqua, this.baseChance, this.rarity, this.wr, dif);
+    }
 
     public static final Codec<AntiquaProperties> CODEC = RecordCodecBuilder.create(instance ->
             instance.group(
@@ -45,11 +79,13 @@ public record AntiquaProperties
     )
     {
 
+        public static final Difficulty DEFAULT = new Difficulty(1, 1, 5);
+
         public static final Codec<Difficulty> CODEC = RecordCodecBuilder.create(instance ->
                 instance.group(
-                        Codec.INT.fieldOf("base_chance").forGetter(Difficulty::width),
-                        Codec.INT.fieldOf("base_chance").forGetter(Difficulty::height),
-                        Codec.INT.fieldOf("base_chance").forGetter(Difficulty::layers)
+                        Codec.INT.fieldOf("width").forGetter(Difficulty::width),
+                        Codec.INT.fieldOf("height").forGetter(Difficulty::height),
+                        Codec.INT.fieldOf("layers").forGetter(Difficulty::layers)
                 ).apply(instance, Difficulty::new)
         );
 
@@ -67,14 +103,13 @@ public record AntiquaProperties
     )
     {
         public static final WorldRestrictions DEFAULT = new WorldRestrictions(
-                List.of(),
-                List.of(),
-                List.of(),
-                List.of(),
-                List.of(),
-                List.of(),
+                List.of(), List.of(), List.of(), List.of(), List.of(), List.of(),
                 Integer.MAX_VALUE,
                 Integer.MIN_VALUE);
+
+        public static final WorldRestrictions OVERWORLD = DEFAULT.withDims(Level.OVERWORLD.location());
+        public static final WorldRestrictions NETHER = DEFAULT.withDims(Level.NETHER.location());
+        public static final WorldRestrictions END = DEFAULT.withDims(Level.END.location());
 
         public static final Codec<WorldRestrictions> CODEC = RecordCodecBuilder.create(instance ->
                 instance.group(
@@ -99,7 +134,6 @@ public record AntiquaProperties
                 ByteBufCodecs.VAR_INT, WorldRestrictions::mustBeCaughtAboveY,
                 WorldRestrictions::new
         );
-
 
 
         public WorldRestrictions withDims(ResourceLocation... dims)
@@ -146,11 +180,11 @@ public record AntiquaProperties
 
     public enum Rarity implements StringRepresentable
     {
-        COMMON("common", 4, "", "", Style.EMPTY.applyFormat(ChatFormatting.WHITE), 40),
-        UNCOMMON("uncommon", 8, "<gradient-37>", "</gradient-43>", Style.EMPTY.applyFormat(ChatFormatting.GREEN), 40),
-        RARE("rare", 12, "<gradient-57>", "</gradient-63>", Style.EMPTY.applyFormat(ChatFormatting.BLUE), 30),
-        EPIC("epic", 20, "<gradient-80>", "</gradient-90>", Style.EMPTY.applyFormat(ChatFormatting.LIGHT_PURPLE), 10),
-        LEGENDARY("legendary", 35, "<rgb>", "</rgb>", Style.EMPTY.applyFormat(ChatFormatting.GOLD), 10);
+        COMMON("common", 4, "", "", Style.EMPTY.applyFormat(ChatFormatting.WHITE)),
+        UNCOMMON("uncommon", 8, "<gradient-37>", "</gradient-43>", Style.EMPTY.applyFormat(ChatFormatting.GREEN)),
+        RARE("rare", 12, "<gradient-57>", "</gradient-63>", Style.EMPTY.applyFormat(ChatFormatting.BLUE)),
+        EPIC("epic", 20, "<gradient-80>", "</gradient-90>", Style.EMPTY.applyFormat(ChatFormatting.LIGHT_PURPLE)),
+        LEGENDARY("legendary", 35, "<rgb>", "</rgb>", Style.EMPTY.applyFormat(ChatFormatting.GOLD));
 
         public static final Codec<Rarity> CODEC = StringRepresentable.fromEnum(Rarity::values);
         public static final StreamCodec<FriendlyByteBuf, Rarity> STREAM_CODEC = NeoForgeStreamCodecs.enumCodec(Rarity.class);
@@ -159,26 +193,19 @@ public record AntiquaProperties
         private final String pre;
         private final String post;
         private final Style style;
-        private final int stoneHookGraceTicks;
 
-        Rarity(String key, int xp, String pre, String post, Style style, int stoneHookGraceTicks)
+        Rarity(String key, int xp, String pre, String post, Style style)
         {
             this.key = key;
             this.xp = xp;
             this.pre = pre;
             this.post = post;
             this.style = style;
-            this.stoneHookGraceTicks = stoneHookGraceTicks;
         }
 
         public String getSerializedName()
         {
             return this.key;
-        }
-
-        public int getStoneHookGraceTicks()
-        {
-            return stoneHookGraceTicks;
         }
 
         public int getId()
